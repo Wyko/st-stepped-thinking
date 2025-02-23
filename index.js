@@ -34,6 +34,70 @@ const extensionFolder = `scripts/extensions/third-party/${extensionName}`;
  * @param {?string} name
  * @return {Promise<string>}
  */
+async function runThinkingNoGenCommand(input, name = '') {
+    const context = getContext();
+
+    // TODO: implement a popup to select a character
+    if (!name && Number.isNaN(parseInt(context.characterId))) {
+        throw new Error('Unknown character to generate thoughts. Please, specify one with passing the name argument');
+    }
+    if (name) {
+        let characterId = findChatCharacterIdByName(name);
+
+        setCharacterId(characterId);
+        setCharacterName(name);
+    }
+
+    let targetPromptIds = input.prompt_ids ? input.prompt_ids.split(',').map(id => Number(id)) : null;
+
+    chatThinkingSettings = {
+        is_enabled: true,
+        thinking_prompt_ids: targetPromptIds,
+    };
+
+    if (!currentMode.isEmbeddedInMessages()) {
+        await runNewThoughtsGeneration($('#send_textarea'), targetPromptIds).catch(error => {
+            console.error('[Stepped Thinking] An error occurred during running thinking process', error);
+        });
+        return;
+    }
+
+    chatThinkingSettings = {
+        is_enabled: null,
+        thinking_prompt_ids: null,
+    };
+
+    return '';
+}
+
+
+SlashCommandParser.addCommandObject(SlashCommand.fromProps({
+    name: 'stepthink-newThoughts',
+    callback: runThinkingNoGenCommand,
+    unnamedArgumentList: [
+        SlashCommandArgument.fromProps({
+            description: 'character name',
+            typeList: [ARGUMENT_TYPE.STRING],
+            isRequired: false,
+            enumProvider: commonEnumProviders.groupMembers,
+        }),
+    ],
+    namedArgumentList: [
+        SlashCommandNamedArgument.fromProps({
+            name: 'prompt_ids',
+            description: 'comma-separated prompt ids, e.g., prompt_ids=1,2',
+            typeList: [ARGUMENT_TYPE.STRING],
+            isRequired: false,
+        }),
+    ],
+    helpString: 'Trigger Stepped Thinking without triggering the character to speak.',
+}));
+
+/**
+ * @param {object} input
+ * @param {?string} name
+ * @return {Promise<string>}
+ */
 async function runThinkingCommand(input, name = '') {
     const context = getContext();
 
