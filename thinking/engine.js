@@ -278,6 +278,20 @@ export async function runRefreshGeneratedThoughts(targetThought) {
  * @param {number[]} targetPromptIds
  * @return {Promise<void>}
  */
+export async function runNewBoundThoughtsNoGeneration(textarea, targetPromptIds) {
+    const context = getContext();
+
+    if (!currentMode.isEmbeddedInMessages()) {
+        await runNewThoughtsGeneration(textarea, targetPromptIds);
+        return;
+    }
+}
+
+/**
+ * @param {JQuery<HTMLTextAreaElement>} textarea
+ * @param {number[]} targetPromptIds
+ * @return {Promise<void>}
+ */
 export async function runNewBoundThoughtsGeneration(textarea, targetPromptIds) {
     const context = getContext();
 

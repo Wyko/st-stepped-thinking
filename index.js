@@ -10,6 +10,7 @@ import {
     findChatCharacterIdByName,
     registerGenerationEventListeners,
     runNewBoundThoughtsGeneration,
+    runNewBoundThoughtsNoGeneration,
 } from './thinking/engine.js';
 import {
     ARGUMENT_TYPE,
@@ -35,7 +36,7 @@ const extensionFolder = `scripts/extensions/third-party/${extensionName}`;
  * @param {object} input
  * @param {?string} name
  * @return {Promise<string>}
- */
+*/
 async function runThinkingNoGenCommand(input, name = '') {
     const context = getContext();
 
@@ -52,31 +53,15 @@ async function runThinkingNoGenCommand(input, name = '') {
 
     let targetPromptIds = input.prompt_ids ? input.prompt_ids.split(',').map(id => Number(id)) : null;
 
-    /**
-     * @type {{is_enabled: ?boolean, thinking_prompt_ids: ?number[]}}
-     */
-    let _chatThinkingSettings = {
-        is_enabled: null,
-        thinking_prompt_ids: null,
-    };
-
-    _chatThinkingSettings = {
-        is_enabled: true,
-        thinking_prompt_ids: targetPromptIds,
-    };
-
-    if (!currentMode.isEmbeddedInMessages()) {
-        await runNewThoughtsGeneration($('#send_textarea'), targetPromptIds).catch(error => {
-            console.error('[Stepped Thinking] An error occurred during running thinking process', error);
-        });
-    };
-
-    _chatThinkingSettings = {
-        is_enabled: null,
-        thinking_prompt_ids: null,
-    };
+    await runNewBoundThoughtsNoGeneration($('#send_textarea'), targetPromptIds).catch(error => {
+        // For some reason, the characterId and characterName are reset after the first thinking prompt generation in the context
+        // which leads to throwing an error. I have no desire to untie the generation spaghetti to figure out how to
+        // prevent this behavior or add ugly crutches, taking into consideration that it actually WORKS even despite the errors
+        console.error('[Stepped Thinking] An error occurred during running thinking process', error);
+    });
 
     return '';
+
 }
 
 
