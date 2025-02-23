@@ -59,8 +59,7 @@ async function runThinkingNoGenCommand(input, name = '') {
         await runNewThoughtsGeneration($('#send_textarea'), targetPromptIds).catch(error => {
             console.error('[Stepped Thinking] An error occurred during running thinking process', error);
         });
-        return;
-    }
+    };
 
     chatThinkingSettings = {
         is_enabled: null,
