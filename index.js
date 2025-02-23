@@ -27,6 +27,8 @@ import {
 export const extensionName = 'st-stepped-thinking';
 const extensionFolder = `scripts/extensions/third-party/${extensionName}`;
 
+
+
 // slash-commands
 
 /**
@@ -50,7 +52,15 @@ async function runThinkingNoGenCommand(input, name = '') {
 
     let targetPromptIds = input.prompt_ids ? input.prompt_ids.split(',').map(id => Number(id)) : null;
 
-    chatThinkingSettings = {
+    /**
+     * @type {{is_enabled: ?boolean, thinking_prompt_ids: ?number[]}}
+     */
+    let _chatThinkingSettings = {
+        is_enabled: null,
+        thinking_prompt_ids: null,
+    };
+
+    _chatThinkingSettings = {
         is_enabled: true,
         thinking_prompt_ids: targetPromptIds,
     };
@@ -61,7 +71,7 @@ async function runThinkingNoGenCommand(input, name = '') {
         });
     };
 
-    chatThinkingSettings = {
+    _chatThinkingSettings = {
         is_enabled: null,
         thinking_prompt_ids: null,
     };
